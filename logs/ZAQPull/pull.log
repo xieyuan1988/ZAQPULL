@@ -1,0 +1,4 @@
+[ZAQPull] 2014-01-21 15:47:07,068 INFO [main] ZAQRouter.init(?) | 默认解析路径为：com.zaq.core.parse.jsonparse.
+[ZAQPull] 2014-01-21 15:47:07,960 INFO [main] MessagePullSocketListener.init(?) | 服务开启成功。。。。端口号:8686
+[ZAQPull] 2014-01-21 17:23:52,476 INFO [main] ZAQRouter.init(?) | 默认解析路径为：com.zaq.core.parse.jsonparse.
+[ZAQPull] 2014-01-21 17:23:53,456 INFO [main] MessagePullSocketListener.init(?) | 服务开启成功。。。。端口号:8686

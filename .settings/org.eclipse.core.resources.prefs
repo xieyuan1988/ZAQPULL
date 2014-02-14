@@ -1,0 +1,6 @@
+#Wed Jan 08 22:10:00 CST 2014
+eclipse.preferences.version=1
+encoding//src/config.properties=UTF-8
+encoding//src/router.properties=UTF-8
+encoding//test/com/zaq/test/Client.java=UTF-8
+encoding//test/com/zaq/test/MyProtocalClient.java=gbk

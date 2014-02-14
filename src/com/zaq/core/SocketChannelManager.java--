@@ -1,0 +1,208 @@
+package com.zaq.core;
+
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.SocketChannel;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+
+import com.zaq.core.common.Constants;
+import com.zaq.core.parse.ILogin;
+import com.zaq.core.parse.Iparse;
+import com.zaq.core.parse.jsonparse.LoginParse;
+import com.zaq.core.protocol.JsonPacket;
+import com.zaq.core.protocol.ZAQprotocolException;
+import com.zaq.core.session.SessionPool;
+import com.zaq.core.util.PacketUtil;
+import com.zaq.core.util.ThreadPool;
+import com.zaq.core.vo.AppUser;
+/**
+ * SCOKET核心管理器
+ * @author zaq
+ *
+ */
+public class SocketChannelManager {
+	private Logger logger=Logger.getLogger(SocketChannelManager.class);
+//	private Map<Long, SocketChannel> userKeyMap=new HashMap<Long, SocketChannel>();
+//	private Map<SocketChannel, Long> scKeyMap=new HashMap<SocketChannel, Long>();
+	private SessionPool sessionPool=SessionPool.getSessionPool();
+//	private ByteBuffer clientBuffer = ByteBuffer.allocate(BLOCK);
+	private static int BLOCK = 1024;
+	
+	private final Pattern clazzPattern=Pattern.compile("\"clazz\\$Id\":\"(\\w+)\"");//动作匹配
+	private ILogin login=LoginParse.getLoginParse();
+	private static SocketChannelManager instance=new SocketChannelManager();
+	/**
+	 * 单例
+	 */
+	private SocketChannelManager(){}
+	public static SocketChannelManager getSCManager(){
+		if(null==instance){
+			 instance=new SocketChannelManager();
+		}
+		return instance;
+		
+	}
+	
+	/**
+	 * 处理读取事件
+	 * @param channel
+	 */
+	public void processRead(SocketChannel channel){
+	     int count=0;   
+	     ByteBuffer clientBuffer = ByteBuffer.allocate(BLOCK);
+	     StringBuilder stringBuilder=new StringBuilder();//+
+	     try {
+			while((count = channel.read(clientBuffer))> 0){
+				clientBuffer.flip(); 
+				//判断是否有新的数据，有数据就把它写回通道中  
+	            while (clientBuffer.hasRemaining()) {  
+	            	stringBuilder.append(PacketUtil.decodePacketToCB(clientBuffer));//+
+	            } 
+			 	
+			 	clientBuffer.clear(); 
+			 }
+		} catch (IOException e) {
+			if(!channel.isOpen()){
+				sessionPool.disConnect(channel);
+			}else{
+				processWrite(channel, new JsonPacket(e.getMessage(), Constants.STATE_ERROR).toSimpleJson());
+			}
+			
+			return;
+		}
+		
+		if(count==-1){//
+			sessionPool.disConnect(channel);
+			return ;
+		}
+		
+		String getJsonVal=stringBuilder.toString();
+		System.out.println("stringBuilder:"+getJsonVal);//+
+		if(StringUtils.isEmpty(getJsonVal)){//不用处理
+			return;
+		}
+		try {
+			parseJsonPacket(getJsonVal,channel);
+		} catch (ZAQprotocolException e1) {
+			logger.error(e1);
+			processWrite(channel, new JsonPacket(e1.getMessage(), e1.getState()).toSimpleJson());//发送错误消息
+		}
+	}
+	
+	/**
+	 * 解析JSON数据包
+	 * @param getJsonVal
+	 * @throws ZAQprotocolException 
+	 */
+	private void parseJsonPacket(final String getJsonVal,final SocketChannel channel) throws ZAQprotocolException {
+		String clazz="";
+		Matcher matcher= clazzPattern.matcher(getJsonVal);
+		if(matcher.find()){
+			clazz=matcher.group(1);
+		}else {
+			throw new ZAQprotocolException("传送协议错误----或clazz$Id为空",Constants.STATE_ERROR);
+		}
+		
+		if(clazz.equals("Login")){//登陆
+			
+			ThreadPool.execute(new Runnable() {
+				
+				@Override
+				public void run() {
+					AppUser appUser=null;
+					try {
+						appUser = login.login(getJsonVal);
+					} catch (ZAQprotocolException e) {
+						processWrite(channel, new JsonPacket(e.getMessage(), e.getState()).toSimpleJson());
+						return;
+					}
+					if(null!=appUser){
+						processWrite(channel, new JsonPacket("登陆成功", Constants.STATE_SUCCESS).toSimpleJson());
+						sessionPool.connect(channel, appUser);
+					}else {
+						processWrite(channel, new JsonPacket("登陆验证失败", Constants.STATE_LOGINERROR).toSimpleJson());
+						sessionPool.disConnect(channel);//自动断开
+					}
+					
+				}
+			});
+			
+		}else{
+			//路由解析
+			Iparse parse= ZAQRouter.getRouter().getParseThread(channel,clazz,getJsonVal);
+			ThreadPool.execute(parse);
+		}
+		
+	}
+
+	/**
+	 * 推送信息
+	 * @param userId
+	 * @param jsonVal
+	 */
+	public boolean processWrite(Long userId,String jsonVal){
+		SocketChannel channel=sessionPool.getSCbyUserId(userId);
+		if(null!=channel){
+			return processWrite(channel,jsonVal);
+		}
+		return false;
+	}
+	
+	/**
+	 * 推送信息
+	 * @param userId
+	 * @param jsonVal
+	 */
+	public boolean processWrite(SocketChannel channel,String jsonVal){
+		if(null!=channel){
+			try {
+				channel.write(PacketUtil.encodePacketToBB(jsonVal));
+				return true;
+			} catch (IOException e) {
+				sessionPool.disConnect(channel);
+				return false;
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * 验证成功建立长连接   一个用户只允许一处登陆
+	 * @param channel
+	 * @param userId
+	 */
+//	private synchronized void connect(SocketChannel channel,Long userId){
+//		SocketChannel sc=userKeyMap.get(userId);
+//		if(null!=sc){
+//			disConnect(sc);
+//		}
+//		scKeyMap.put(channel, userId);
+//		userKeyMap.put(userId, channel);
+//	}
+	
+	/**
+	 * 断开事件 remove channel from SCmap while isExist
+	 * @param channel
+	 */
+//	private void disConnect(SocketChannel channel){
+//		Long userId=scKeyMap.get(channel);
+//		try {
+//			channel.close();
+//		} catch (IOException e) {
+//			logger.error("通道关闭异常", e);
+//		}finally{
+//			if(null!=userId){
+//				synchronized (this.getClass()) {
+//					System.out.println(userId+"断开连接");
+//					scKeyMap.remove(channel);
+//					userKeyMap.remove(userId);
+//				}
+//			}
+//		}
+//		
+//	}
+}

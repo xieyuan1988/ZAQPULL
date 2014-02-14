@@ -1,0 +1,16 @@
+package com.zaq.core.session;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class UserSession {
+	private Map<String, Object> session=new HashMap<String, Object>();
+	
+	public Object get(String key){
+		return session.get(key);
+	}
+	
+	public void put(String key,Object object){
+		session.put(key, object);
+	}
+}
