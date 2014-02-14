@@ -54,12 +54,12 @@ public class ServerHandler extends IoFilterAdapter implements IoHandler {
     // 当一个新客户端连接后触发此方法.
     public void sessionCreated(IoSession ioSession) throws Exception {
 //    	logger.info("ioSession.isBothIdle():"+ioSession.isBothIdle()+"ioSession.isClosing():"+ioSession.isClosing()+"ioSession.isConnected():"+ioSession.isConnected()+"ioSession.isReaderIdle():"+ioSession.isReaderIdle()+"ioSession.isReadSuspended():"+ioSession.isReadSuspended()+"ioSession.isWriterIdle():"+ioSession.isWriterIdle()+"ioSession.isWriteSuspended():"+ioSession.isWriteSuspended());
-    	logger.info("sessionCreated");
+//    	logger.info("sessionCreated");
     	
     }
     public void sessionOpened(IoSession ioSession) throws Exception {
 
-    	logger.info("sessionOpened");
+//    	logger.info("sessionOpened");
     }
     public void sessionClosed(IoSession ioSession) {
     	logger.info("sessionClosed");
@@ -177,7 +177,17 @@ public class ServerHandler extends IoFilterAdapter implements IoHandler {
 					}
 					if(null!=appUser){
 						sessionPool.connect(ioSession, appUser);
-						processWrite(ioSession, new JsonPacket("登陆成功", Constants.STATE_SUCCESS).toSimpleJson());
+						
+						
+						if(null!=SessionPool.getAdminId(appUser.getCompanyId().intValue())&&
+								appUser.getUserId()==SessionPool.getAdminId(appUser.getCompanyId().intValue())){
+							processWrite(ioSession, new JsonPacket("登陆成功", 
+									Constants.STATE_SUCCESS).toLoginSucSimpleJson(
+											sessionPool.getOnLineUser(appUser.getCompanyId())));
+						}else{
+							processWrite(ioSession, new JsonPacket("登陆成功", Constants.STATE_SUCCESS).toSimpleJson());
+						}
+						
 					}else {
 						processWrite(ioSession, new JsonPacket("登陆验证失败", Constants.STATE_LOGINERROR).toSimpleJson());
 						sessionPool.disConnect(ioSession);//自动断开

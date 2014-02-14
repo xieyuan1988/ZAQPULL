@@ -112,6 +112,16 @@ public class JsonPacket<T> extends BasePacket{
 		return "{\"clazz$Id\":\""+DEFAULT_CLASS+"\",\"msg\":\""+this.msg+"\",\"state\":\""+this.state+"\",\"msgTAG\":\""+this.msgTAG+"\"}";
 	}
 	
+	/**
+	 * 组装admin登陆成功的消息
+	 * @param onLineUser 在线用户ID组，以|分隔
+	 * @return
+	 */
+	public String toLoginSucSimpleJson(String onLineUser){
+		return "{\"clazz$Id\":\""+DEFAULT_CLASS+"\",\"msg\":\""+this.msg+"\",\"state\":\""+
+		this.state+"\",\"object\":\""+onLineUser+"\",\"msgTAG\":\""+this.msgTAG+"\"}";
+	}
+	
 	public static void main(String[] args) {
 		Pattern clazzPattern=Pattern.compile("\"clazz\\$Id\":\"(\\w+)\"");
 		String ss="{\"userName\":\"admin\",\"clazz$Id\":\"Login\",\"sendTime\":1388044054391,\"object\":{\"password\":\"zaq123\"}}";

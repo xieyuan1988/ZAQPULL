@@ -1,5 +1,7 @@
 package com.zaq.core.vo;
 
+import com.google.gson.annotations.Expose;
+
 
 /**
  * socket登陆信息
@@ -11,11 +13,13 @@ public class Login {
 	public static Short STATE_ONLINE=1;//在线
 	public static Short STATE_BUSY=2;//忙碌
 	public static Short STATE_LEAVE=3;//离开
+	@Expose
 	private Short state;
+	@Expose
 	private String userName;
 	private String password;
 	
-	private Long companyId;
+	private Long companyId;			//所属公司的ID
 	
 	public String getUserName() {
 		return userName;

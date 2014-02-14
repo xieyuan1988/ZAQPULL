@@ -18,8 +18,8 @@ import com.zaq.core.session.SessionPool;
 import com.zaq.core.util.AppUtil;
 import com.zaq.core.util.ThreadPool;
 import com.zaq.core.vo.AppUser;
+import com.zaq.core.vo.Company;
 import com.zaq.core.vo.Login;
-import com.zaq.core.vo.Message;
 import com.zaq.core.vo.RoomMessage;
 import com.zaq.core.vo.SendMessage;
 import com.zaq.core.vo.ShortMessage;
@@ -56,8 +56,14 @@ public class LoginParse implements ILogin{
 		String userName= jsonPacket.getObject().getUserName();
 		String password= jsonPacket.getObject().getPassword();
 		Short loginState= jsonPacket.getObject().getState();
+		Long companyId= jsonPacket.getObject().getCompanyId();
 		final AppUser appUser=appUserService.login(userName,password);
 		appUser.setLoginState(loginState);
+		if(null==companyId){
+			appUser.setCompanyId(Long.valueOf(Company.YH));
+		}else{
+			appUser.setCompanyId(companyId);
+		}
 		
 		ThreadPool.execute(new Runnable() {
 			@Override
@@ -68,6 +74,7 @@ public class LoginParse implements ILogin{
 		
 		return appUser;
 	}
+	
 	/**
 	 *  推送未读消息   一条条的推。。。。
 	 * @param userId

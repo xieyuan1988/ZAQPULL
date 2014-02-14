@@ -5,6 +5,7 @@ package com.zaq.core.vo;
  *
  */
 public class Company {
+	public static final int YH=1;
 	private Long companyId;
 	private String name;
 	public Long getCompanyId() {

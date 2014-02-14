@@ -21,6 +21,8 @@ public class AppUser {
 	@Expose
 	protected Long userId;
 
+	private Long companyId;					//所属公司的ID
+	
 	@Expose
 	protected String username;
 	protected String password;
@@ -260,5 +262,17 @@ public class AppUser {
 	public boolean equals(Object obj) {
 		return userId==((AppUser)obj).getUserId();
 	}
-	
+	/**
+	 * @return the companyId
+	 */
+	public Long getCompanyId() {
+		return companyId;
+	}
+
+	/**
+	 * @param companyId the companyId to set
+	 */
+	public void setCompanyId(Long companyId) {
+		this.companyId = companyId;
+	}
 }

@@ -7,13 +7,13 @@ import java.util.Properties;
 
 import org.apache.log4j.PropertyConfigurator;
 
-import com.zaq.core.MessagePullSocketListener;
 import com.zaq.core.common.BeanFactory;
 import com.zaq.core.protocol.ZAQprotocolException;
 
 public class AppUtil {
 	private static String log4j="log4j.properties";
 	private static String config="config.properties";
+	private static String admin="admin.properties";
 	private static Properties props ;
 	
 	public static void init() throws IOException {
@@ -21,9 +21,11 @@ public class AppUtil {
 		PropertyConfigurator.configure(PathUtil.instance().getPath(log4j)); 
 		
 		props= new Properties();
-		InputStream is = new BufferedInputStream(AppUtil.class.getClassLoader().getResourceAsStream(config));
-		props.load(is);
+		InputStream isConfig = new BufferedInputStream(AppUtil.class.getClassLoader().getResourceAsStream(config));
+		InputStream isAdmin = new BufferedInputStream(AppUtil.class.getClassLoader().getResourceAsStream(admin));
 
+		props.load(isConfig);
+		props.load(isAdmin);
 	}
 
 	public static String getPropertity(String string) {
