@@ -178,9 +178,8 @@ public class ServerHandler extends IoFilterAdapter implements IoHandler {
 					if(null!=appUser){
 						sessionPool.connect(ioSession, appUser);
 						
-						
-						if(null!=SessionPool.getAdminId(appUser.getCompanyId().intValue())&&
-								appUser.getUserId()==SessionPool.getAdminId(appUser.getCompanyId().intValue())){
+						Long adminId=SessionPool.getAdminId(appUser.getCompanyId().intValue());
+						if(null!=adminId&&appUser.getUserId().longValue()==adminId.longValue()){
 							processWrite(ioSession, new JsonPacket("登陆成功", 
 									Constants.STATE_SUCCESS).toLoginSucSimpleJson(
 											sessionPool.getOnLineUser(appUser.getCompanyId())));
