@@ -1,10 +1,8 @@
 package com.zaq.core.session;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -20,7 +18,6 @@ import com.zaq.core.protocol.ZAQprotocolException;
 import com.zaq.core.util.AppUtil;
 import com.zaq.core.util.ThreadPool;
 import com.zaq.core.vo.AppUser;
-import com.zaq.core.vo.Company;
 import com.zaq.core.vo.Login;
 /**
  * session池
@@ -143,18 +140,11 @@ public class SessionPool {
 	 */
 	public static Long getAdminId(int curCompanyId){
 		Long adminId=null;
-		switch (curCompanyId) {
-		case Company.YH:
-			adminId=Long.valueOf(AppUtil.getPropertity("YHOA"));
-			
-			if(null==adminId){
-				logger.error("admin.properties中未配置YHOA");
-			}
-			break;
-
-		default:
-			break;
-		}
+		adminId=Long.valueOf(AppUtil.getPropertity("Client"+curCompanyId));
+		
+		if(null==adminId){
+			logger.error("admin.properties中未配置YHOA");
+		}		
 		
 		return adminId;
 	}
