@@ -13,6 +13,7 @@ import com.zaq.core.protocol.ZAQprotocolException;
 import com.zaq.core.session.SessionPool;
 import com.zaq.core.util.AppUtil;
 import com.zaq.core.util.ThreadPool;
+import com.zaq.core.vo.AppUser;
 import com.zaq.core.vo.Message;
 import com.zaq.core.vo.RoomMessage;
 import com.zaq.core.vo.SendMessage;
@@ -58,7 +59,7 @@ public class CommonSendService {
 
 	}
 
-	private static void send(IoSession ioSession,String inStr,Gson outGson,  Type outType, JsonPacket<SendMessage> sendPacket,  boolean rePull){
+	private static void send(final IoSession ioSession,String inStr,Gson outGson,  Type outType, JsonPacket<SendMessage> sendPacket,  boolean rePull){
 		if(!sendPacket.isRequest()){//非请求 ，为系统 主动推送
 			if(null==sendPacket.getObject().getReceiveId()){
 				try {
@@ -71,7 +72,23 @@ public class CommonSendService {
 		}
 		
 		if(null!=ioSession){
-			ServerHandler.getInstances().processWrite(ioSession, outGson.toJson(sendPacket, outType));
+			final String outStr=outGson.toJson(sendPacket, outType);
+			ServerHandler.getInstances().processWrite(ioSession, outStr);
+			//给中转服务客户端转送此条消息
+			ThreadPool.executorSendMessage(new Runnable() {
+				@Override
+				public void run() {
+					AppUser user= (AppUser) ioSession.getAttribute(SessionPool.APPUSER);
+					
+					Long tUserId= SessionPool.getTransferAdminId(user.getCompanyId().intValue());
+					if(null!=tUserId){
+						IoSession tIOSession=SessionPool.getSessionPool().getSCbyUserId(tUserId);
+						
+						ServerHandler.getInstances().processWrite(tIOSession, outStr);
+					}
+					
+				}
+			});
 		}
 		
 	}
