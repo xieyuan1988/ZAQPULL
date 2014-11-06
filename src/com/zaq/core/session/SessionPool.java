@@ -143,10 +143,26 @@ public class SessionPool {
 		adminId=Long.valueOf(AppUtil.getPropertity("Client"+curCompanyId));
 		
 		if(null==adminId){
-			logger.error("admin.properties中未配置YHOA");
+			logger.error("admin.properties中未配置admin系统用户");
 		}		
 		
 		return adminId;
+	}
+	
+	/**
+	 * 按公司ID获取TransferAdmin的userId
+	 * @param curCompanyId
+	 * @return
+	 */
+	public static Long getTransferAdminId(int curCompanyId){
+		Long transferId=null;
+		transferId=Long.valueOf(AppUtil.getPropertity("Transfer"+curCompanyId));
+		
+		if(null==transferId){
+			logger.error("admin.properties中未配置Transfer中转用户");
+		}		
+		
+		return transferId;
 	}
 	
 	/**
