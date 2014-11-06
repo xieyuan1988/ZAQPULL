@@ -3,6 +3,7 @@ package com.zaq.core.common;
 import java.lang.reflect.Type;
 
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.mina.core.session.IoSession;
 
@@ -59,12 +60,35 @@ public class CommonSendService {
 
 	}
 
-	private static void send(final IoSession ioSession,String inStr,Gson outGson,  Type outType, JsonPacket<SendMessage> sendPacket,  boolean rePull){
+	private static void send(IoSession ioSession,String inStr,Gson outGson,  Type outType,final JsonPacket<SendMessage> sendPacket,  boolean rePull){
+		final String outStr=outGson.toJson(sendPacket, outType);
 		if(!sendPacket.isRequest()){//非请求 ，为系统 主动推送
 			if(null==sendPacket.getObject().getReceiveId()){
 				try {
 					saveSendMessage(inStr, sendPacket, rePull);
 					sendPacket.setMsgTAG(sendPacket.getObject().getReceiveId());
+					
+					if(StringUtils.isEmpty(sendPacket.getObject().getMessage().getMessageUUID())){//中转的服务器客户端可能转发他人消息
+						
+						//给中转服务客户端转送此条消息  中转服务器挂了不管，妈的。。。
+						ThreadPool.executorSendMessage(new Runnable() {
+							@Override
+							public void run() {
+								AppUser user= (AppUser) SessionPool.getSessionPool().
+																			getSCbyUserId(
+																		sendPacket.getObject().getMessage().getSenderId()
+																	).getAttribute(SessionPool.APPUSER);
+								
+								Long tUserId= SessionPool.getTransferAdminId(user.getCompanyId().intValue());
+								if(null!=tUserId){
+									IoSession tIOSession=SessionPool.getSessionPool().getSCbyUserId(tUserId);
+									
+									ServerHandler.getInstances().processWrite(tIOSession, outStr);
+								}
+								
+							}
+						});
+					}
 				} catch (ZAQprotocolException e) {
 					sendPacket.setMsgTAG(Constants.TAG_DEFAULT);
 				}
@@ -72,25 +96,8 @@ public class CommonSendService {
 		}
 		
 		if(null!=ioSession){
-			final String outStr=outGson.toJson(sendPacket, outType);
 			ServerHandler.getInstances().processWrite(ioSession, outStr);
-			//给中转服务客户端转送此条消息
-			ThreadPool.executorSendMessage(new Runnable() {
-				@Override
-				public void run() {
-					AppUser user= (AppUser) ioSession.getAttribute(SessionPool.APPUSER);
-					
-					Long tUserId= SessionPool.getTransferAdminId(user.getCompanyId().intValue());
-					if(null!=tUserId){
-						IoSession tIOSession=SessionPool.getSessionPool().getSCbyUserId(tUserId);
-						
-						ServerHandler.getInstances().processWrite(tIOSession, outStr);
-					}
-					
-				}
-			});
 		}
-		
 	}
 	
 	/**
