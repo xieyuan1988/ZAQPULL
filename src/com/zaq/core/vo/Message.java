@@ -17,7 +17,7 @@ public abstract class Message {
 	@Expose
 	protected String typeStr$type;//消息类别
 	
-	protected String messageUUID;//发送消息的uuid 保证推送消息的完整性
+	protected String messageUUID;//发送消息的uuid 保证推送消息的完整性  超级管理员或中转员才配置有些字段
 	
 	public static final Short MSG_TYPE_PERSONAL = Short
 			.valueOf((short) 1);
