@@ -35,7 +35,7 @@ public class CommonSendService {
 	 * @param outType
 	 * @param userId
 	 *            接收人的ID
-	 * @param sendPacket
+	 * @param sendPacket 
 	 * @param rePull
 	 *            失败是否需要重新发送
 	 * @param isConcurrence    true,并发发送消息，防止阻塞延迟    调用前先持久化消息message，防止保存重复的消息message
