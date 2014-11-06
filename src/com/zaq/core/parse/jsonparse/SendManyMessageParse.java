@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.mina.core.session.IoSession;
 
 import com.google.gson.reflect.TypeToken;
@@ -67,9 +68,11 @@ public class SendManyMessageParse extends BaseJsonParse<JsonPacket<SendManyMessa
 		sendMessage.setReadFlag(SendMessage.FLAG_UNREAD);
 		sendMessage.setMessage(packet.getObject().getMessage());
 		
-		sendMessage.getMessage().setSenderId(appUser.getUserId());
-		sendMessage.getMessage().setSender(appUser.getFullname());
-		
+		if(StringUtils.isEmpty(sendMessage.getMessage().getMessageUUID())){//中转的服务器客户端可能转发他人消息
+			sendMessage.getMessage().setSenderId(appUser.getUserId());
+			sendMessage.getMessage().setSender(appUser.getFullname());
+		}
+
 		//先保存消息获取ID
 		try {
 			messageService.save(sendMessage.getMessage());
