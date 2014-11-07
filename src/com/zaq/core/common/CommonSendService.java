@@ -35,7 +35,7 @@ public class CommonSendService {
 	 * @param outType
 	 * @param userId
 	 *            接收人的ID
-	 * @param sendPacket 
+	 * @param sendPacket
 	 * @param rePull
 	 *            失败是否需要重新发送
 	 * @param isConcurrence    true,并发发送消息，防止阻塞延迟    调用前先持久化消息message，防止保存重复的消息message
@@ -61,12 +61,13 @@ public class CommonSendService {
 	}
 
 	private static void send(IoSession ioSession,String inStr,Gson outGson,  Type outType,final JsonPacket<SendMessage> sendPacket,  boolean rePull){
+		//设置服务器端回执编号 
+		sendPacket.setMsgTAG(sendPacket.getObject().getReceiveId());
 		final String outStr=outGson.toJson(sendPacket, outType);
 		if(!sendPacket.isRequest()){//非请求 ，为系统 主动推送
 			if(null==sendPacket.getObject().getReceiveId()){
 				try {
 					saveSendMessage(inStr, sendPacket, rePull);
-					sendPacket.setMsgTAG(sendPacket.getObject().getReceiveId());
 					
 					if(StringUtils.isEmpty(sendPacket.getObject().getMessage().getMessageUUID())){//中转的服务器客户端可能转发他人消息
 						
