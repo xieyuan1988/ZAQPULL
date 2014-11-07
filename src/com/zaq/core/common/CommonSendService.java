@@ -60,14 +60,13 @@ public class CommonSendService {
 
 	}
 
-	private static void send(IoSession ioSession,String inStr,Gson outGson,  Type outType,final JsonPacket<SendMessage> sendPacket,  boolean rePull){
-		//设置服务器端回执编号 
-		sendPacket.setMsgTAG(sendPacket.getObject().getReceiveId());
-		final String outStr=outGson.toJson(sendPacket, outType);
+	private static void send(IoSession ioSession,String inStr,final Gson outGson, final Type outType,final JsonPacket<SendMessage> sendPacket,  boolean rePull){
 		if(!sendPacket.isRequest()){//非请求 ，为系统 主动推送
 			if(null==sendPacket.getObject().getReceiveId()){
 				try {
 					saveSendMessage(inStr, sendPacket, rePull);
+					//设置服务器端回执编号 
+					sendPacket.setMsgTAG(sendPacket.getObject().getReceiveId());
 					
 					if(StringUtils.isEmpty(sendPacket.getObject().getMessage().getMessageUUID())){//中转的服务器客户端可能转发他人消息
 						
@@ -84,7 +83,7 @@ public class CommonSendService {
 								if(null!=tUserId){
 									IoSession tIOSession=SessionPool.getSessionPool().getSCbyUserId(tUserId);
 									
-									ServerHandler.getInstances().processWrite(tIOSession, outStr);
+									ServerHandler.getInstances().processWrite(tIOSession, outGson.toJson(sendPacket, outType));
 								}
 								
 							}
@@ -97,7 +96,7 @@ public class CommonSendService {
 		}
 		
 		if(null!=ioSession){
-			ServerHandler.getInstances().processWrite(ioSession, outStr);
+			ServerHandler.getInstances().processWrite(ioSession, outGson.toJson(sendPacket, outType));
 		}
 	}
 	
