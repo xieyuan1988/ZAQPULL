@@ -179,7 +179,10 @@ public class ServerHandler extends IoFilterAdapter implements IoHandler {
 						sessionPool.connect(ioSession, appUser);
 						
 						Long adminId=SessionPool.getAdminId(appUser.getCompanyId().intValue());
-						if(null!=adminId&&appUser.getUserId().longValue()==adminId.longValue()){
+						Long transferAdminId=SessionPool.getTransferAdminId(appUser.getCompanyId().intValue());
+						
+						if((null!=adminId||null!=transferAdminId)
+								&&(appUser.getUserId().longValue()==adminId.longValue()||appUser.getUserId().longValue()==transferAdminId.longValue())){
 							//管理员登陆成功，则发送所有的在线公司用户给管理员
 							processWrite(ioSession, new JsonPacket("登陆成功", 
 									Constants.STATE_SUCCESS).toLoginSucSimpleJson(
