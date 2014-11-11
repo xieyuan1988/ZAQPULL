@@ -173,15 +173,17 @@ public class SessionPool {
 	public void loginChange(AppUser user,Short state){
 		int curCompanyId=user.getCompanyId().intValue();
 		IoSession adminSession=null;
+		IoSession transferSession=null;
 		
 		Long adminId=getAdminId(curCompanyId);
-
+		Long transferId= getTransferAdminId(curCompanyId);
 		
-		if(null==adminId){
+		if(null==adminId&&null==transferId){
 			return;
 		}
 		adminSession=getSCbyUserId(adminId);
-		if(null==adminSession){
+		transferSession=getSCbyUserId(transferId);
+		if(null==adminSession&&null==transferSession){
 			return;
 		}
 		
@@ -199,6 +201,9 @@ public class SessionPool {
 		
 		if(null!=adminSession){
 			ServerHandler.getInstances().processWrite(adminSession, jsonVal);
+		}
+		if(null!=transferSession){
+			ServerHandler.getInstances().processWrite(transferSession, jsonVal);
 		}
 	}	
 	
