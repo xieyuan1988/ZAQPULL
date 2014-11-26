@@ -1,33 +1,30 @@
 -- 1
-DROP TABLE IF EXISTS `pull_send_message`;
-DROP TABLE IF EXISTS `pull_message`;
-DROP TABLE IF EXISTS `app_user`;
-
 CREATE TABLE `app_user` (
-  `userId` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
-  `staffNo` varchar(128) DEFAULT NULL COMMENT '编号',
+  `userId` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键数字ID',
+ -- `staffNo` varchar(128) DEFAULT NULL COMMENT '编号',
   `username` varchar(128) NOT NULL COMMENT '用户名',
+  `companyId`  bigint(20) DEFAULT NULL COMMENT '所属公司的ID 和帐号名 关联为唯一键',
   `title` smallint(6) NOT NULL COMMENT '1=先生\r\n            0=女士\r\n            小姐',
   `password` varchar(128) NOT NULL COMMENT '密码',
   `email` varchar(128) NOT NULL COMMENT '邮件',
-  `depId` bigint(20) DEFAULT NULL COMMENT '所属部门',
+ -- `depId` bigint(20) DEFAULT NULL COMMENT '所属部门',
   `position` varchar(32) DEFAULT NULL COMMENT '职位',
   `phone` varchar(32) DEFAULT NULL COMMENT '电话',
   `mobile` varchar(32) DEFAULT NULL COMMENT '手机',
-  `faxPhone` varchar(128) DEFAULT NULL COMMENT '传真',
-  `fax` varchar(32) DEFAULT NULL COMMENT '直线',
+ -- `faxPhone` varchar(128) DEFAULT NULL COMMENT '传真',
+ -- `fax` varchar(32) DEFAULT NULL COMMENT '直线',
   `address` varchar(64) DEFAULT NULL COMMENT '地址',
-  `zip` varchar(32) DEFAULT NULL COMMENT '邮编',
+ --  `zip` varchar(32) DEFAULT NULL COMMENT '邮编',
   `photo` varchar(128) DEFAULT NULL COMMENT '相片地址',
-  `accessionTime` datetime NOT NULL COMMENT '入职时间',
+  `createTime` datetime NOT NULL COMMENT '创建时间',
   `status` smallint(6) NOT NULL COMMENT '状态\r\n            1=激活\r\n            0=禁用\r\n            2=离职\r\n            ',
-  `education` varchar(64) DEFAULT NULL,
+ --  `education` varchar(64) DEFAULT NULL,
   `fullname` varchar(50) NOT NULL,
   `delFlag` smallint(6) NOT NULL COMMENT '0=未删除\r\n            1=删除',
-  `departureTime` datetime DEFAULT NULL COMMENT '离职时间'
-) ENGINE=InnoDB AUTO_INCREMENT=248 DEFAULT CHARSET=utf8 COMMENT='app_user\r\n用户表';
+ -- `departureTime` datetime DEFAULT NULL COMMENT '离职时间'
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8 COMMENT='app_user\r\n用户表';
 
-
+DROP TABLE IF EXISTS `pull_message`;
 CREATE TABLE `pull_message` (
   `messageId` bigint(20) NOT NULL AUTO_INCREMENT,
   `senderId` bigint(20) DEFAULT NULL COMMENT '发送人主键',
@@ -42,6 +39,7 @@ CREATE TABLE `pull_message` (
   CONSTRAINT `FK_SM_R_AU_PULL` FOREIGN KEY (`senderId`) REFERENCES `app_user` (`userId`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8 COMMENT='推送消息';
 
+DROP TABLE IF EXISTS `pull_send_message`;
 CREATE TABLE `pull_send_message` (
   `receiveId` bigint(20) NOT NULL AUTO_INCREMENT,
   `messageId` bigint(20) DEFAULT NULL,
@@ -82,6 +80,3 @@ CREATE TABLE `pull_room_user` (
   `state` smallint(6) DEFAULT NULL COMMENT '设置消息状态',
   `timeImport` datetime DEFAULT NULL COMMENT '加入时间'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-
-
