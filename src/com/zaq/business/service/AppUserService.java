@@ -19,17 +19,18 @@ public class AppUserService extends BaseService<AppUser>{
 	 * 登陆 method
 	 * @param userName
 	 * @param password
+	 * @param companyId 所属公司的ID 和帐号名 关联为唯一键
 	 * @return
 	 */
-	public AppUser login(String userName, String password) throws ZAQprotocolException{
-		if(StringUtils.isEmpty(userName)||StringUtils.isEmpty(password)){
-			throw new ZAQprotocolException("用户名或密码不能为空", Constants.STATE_LOGINERROR);
+	public AppUser login(String userName, String password,Long companyId) throws ZAQprotocolException{
+		if(StringUtils.isEmpty(userName)||StringUtils.isEmpty(password)||null==companyId){
+			throw new ZAQprotocolException("企业号或用户名或密码不能为空", Constants.STATE_LOGINERROR);
 		}
 		
-		String sql="select * from app_user au where au.username=?";  
+		String sql="select * from app_user au where au.username=? and companyId=?";  
 	    AppUser appUser;
 		try {
-			appUser = baseDao.queryForObject(AppUser.class,sql, new Object[]{userName});
+			appUser = baseDao.queryForObject(AppUser.class,sql, new Object[]{userName,companyId});
 		} catch (SQLException e) {
 			throw new ZAQprotocolException("系统异常："+e.getMessage(), Constants.STATE_ERROR);
 		}          
