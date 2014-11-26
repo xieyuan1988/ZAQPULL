@@ -19,29 +19,29 @@ public class AppUser {
 	public static Short STATUUS_USE=1;		//激活
 	public static Short STATUUS_LEAVE=2;	//注销
 	@Expose
-	protected Long userId;
-
-	private Long companyId;					//所属公司的ID
-	
+	protected Long userId;					//推送服务器中用户的数字ID  ,客户端系统必须在注册的时候记录记忆该ID对应上自己系统中的用户
 	@Expose
-	protected String username;
+	private Long companyId;					//所属公司的ID 和帐号名 关联为唯一键
+	@Expose
+	protected String username;				//帐号名
+	@Expose
 	protected String password;
 
 	@Expose
 	protected String email;
-
-	@Expose
-	protected Department department;
+//
+//	@Expose
+//	protected Department department;
 
 	@Expose
 	protected String position;
 
 	@Expose
 	protected String phone;
-
+//
 	@Expose
 	protected String mobile;
-	
+//	
 	@Expose
 	protected String address;
 
@@ -57,36 +57,36 @@ public class AppUser {
 	@Expose
 	protected Short delFlag;
 	@Expose
-	protected Date accessionTime;
+	protected Date createTime;
 	
-	private Set<AppRole> roles;
-	private Set<String> rights = new HashSet();
+//	private Set<AppRole> roles;
+//	private Set<String> rights = new HashSet();
 
 	protected transient Short loginState;//状态
 	
-	public Set<String> getRights() {
-		return this.rights;
-	}
-
-	public String getFunctionRights() {
-		StringBuffer sb = new StringBuffer();
-
-		Iterator it = this.rights.iterator();
-
-		while (it.hasNext()) {
-			sb.append((String) it.next()).append(",");
-		}
-
-		if (this.rights.size() > 0) {
-			sb.deleteCharAt(sb.length() - 1);
-		}
-
-		return sb.toString();
-	}
-
-	public void setRights(Set<String> rights) {
-		this.rights = rights;
-	}
+//	public Set<String> getRights() {
+//		return this.rights;
+//	}
+//
+//	public String getFunctionRights() {
+//		StringBuffer sb = new StringBuffer();
+//
+//		Iterator it = this.rights.iterator();
+//
+//		while (it.hasNext()) {
+//			sb.append((String) it.next()).append(",");
+//		}
+//
+//		if (this.rights.size() > 0) {
+//			sb.deleteCharAt(sb.length() - 1);
+//		}
+//
+//		return sb.toString();
+//	}
+//
+//	public void setRights(Set<String> rights) {
+//		this.rights = rights;
+//	}
 
 	public AppUser() {
 	}
@@ -127,13 +127,13 @@ public class AppUser {
 		this.email = aValue;
 	}
 
-	public Department getDepartment() {
-		return this.department;
-	}
-
-	public void setDepartment(Department department) {
-		this.department = department;
-	}
+//	public Department getDepartment() {
+//		return this.department;
+//	}
+//
+//	public void setDepartment(Department department) {
+//		this.department = department;
+//	}
 
 
 	public String getPosition() {
@@ -177,12 +177,13 @@ public class AppUser {
 		this.photo = aValue;
 	}
 
-	public Date getAccessionTime() {
-		return this.accessionTime;
+
+	public Date getCreateTime() {
+		return createTime;
 	}
 
-	public void setAccessionTime(Date aValue) {
-		this.accessionTime = aValue;
+	public void setCreateTime(Date createTime) {
+		this.createTime = createTime;
 	}
 
 	public Short getStatus() {
@@ -212,15 +213,15 @@ public class AppUser {
 	public String getFirstKeyColumnName() {
 		return "userId";
 	}
-
-	public Set<AppRole> getRoles() {
-		return this.roles;
-	}
-
-	public void setRoles(Set<AppRole> roles) {
-		this.roles = roles;
-	}
-       
+//
+//	public Set<AppRole> getRoles() {
+//		return this.roles;
+//	}
+//
+//	public void setRoles(Set<AppRole> roles) {
+//		this.roles = roles;
+//	}
+//       
 	public boolean isEnabled() {
 		return this.status.shortValue() == 1||this.status.shortValue() == 3;
 	}
