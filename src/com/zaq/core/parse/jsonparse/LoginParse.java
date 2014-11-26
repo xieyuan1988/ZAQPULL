@@ -57,7 +57,7 @@ public class LoginParse implements ILogin{
 		String password= jsonPacket.getObject().getPassword();
 		Short loginState= jsonPacket.getObject().getState();
 		Long companyId= jsonPacket.getObject().getCompanyId();
-		final AppUser appUser=appUserService.login(userName,password);
+		final AppUser appUser=appUserService.login(userName,password,companyId);
 		appUser.setLoginState(loginState);
 		if(null==companyId){
 			appUser.setCompanyId(Long.valueOf(Company.YH));
