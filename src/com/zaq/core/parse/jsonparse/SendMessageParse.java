@@ -70,10 +70,10 @@ public class SendMessageParse extends BaseJsonParse<JsonPacket<SendMessage>>{
 		packet.getObject().setReadFlag(SendMessage.FLAG_UNREAD);
 		packet.getObject().setDelFlag(Constants.FLAG_UNDELETED);
 		
-		if(StringUtils.isEmpty(packet.getObject().getMessage().getMessageUUID())){//中转的服务器客户端可能转发他人消息
+	//	if(StringUtils.isEmpty(packet.getObject().getMessage().getMessageUUID())){//中转的服务器客户端可能转发他人消息
 			packet.getObject().getMessage().setSenderId(appUser.getUserId());
 			packet.getObject().getMessage().setSender(appUser.getFullname());
-		}
+	//	}
 		packet.getObject().getMessage().setSendTime(new Date());
 		packet.setState(Constants.STATE_SUCCESS);
 		logger.info("推送记录接收到的消息:"+getPacketVal());
